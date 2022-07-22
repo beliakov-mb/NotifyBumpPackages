@@ -44,6 +44,7 @@ foreach (var pr in _filteredPullRequests)
         Team = _options.Team
     };
 
+    Console.Write("Notify about " + pr.HtmlUrl);
     _ = _retryPolicy.ExecuteAsync(() =>
         _httpClient.PostAsync(
             grafanaUri,
