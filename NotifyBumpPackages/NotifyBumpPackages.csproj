@@ -7,4 +7,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="CommandLineParser" Version="2.9.1" />
+        <PackageReference Include="OCTOKIT" Version="1.0.0" />
+        <PackageReference Include="polly" Version="7.2.3" />
+    </ItemGroup>
 </Project>
