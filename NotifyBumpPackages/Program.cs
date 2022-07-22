@@ -45,7 +45,7 @@ foreach (var pr in _filteredPullRequests)
     };
 
     Console.Write("Notify about " + pr.HtmlUrl);
-    _ = _retryPolicy.ExecuteAsync(async() =>
+    _ = await _retryPolicy.ExecuteAsync(async() =>
         await _httpClient.PostAsync(
             grafanaUri,
             new StringContent(JsonSerializer.Serialize(_forgottenPullRequest), Encoding.Default,
