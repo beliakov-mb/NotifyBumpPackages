@@ -34,7 +34,7 @@ runs:
     - ${{ inputs.team }}
     - '-a'
     - ${{ inputs.author }}
-    - 'd'
+    - '-d'
     - ${{ inputs.timeout }}
-    - 'r'
+    - '-r'
     - ${{ inputs.retries }}
