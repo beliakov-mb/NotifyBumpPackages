@@ -33,7 +33,7 @@ runs:
     - '-t'
     - ${{ inputs.team }}
     - '-a'
-    - ${{ inputs.author }}
+    - ${{ inputs.authors }}
     - '-d'
     - ${{ inputs.timeout }}
     - '-r'
