@@ -1,0 +1,8 @@
+name: 'NotifyBumpPackages'
+description: 'NotifyBumpPackages'
+branding:
+  icon: alert-triangle
+  color: blue
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
