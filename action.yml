@@ -1,8 +1,40 @@
 name: 'NotifyBumpPackages'
-description: 'NotifyBumpPackages'
+description: 'Notify about forgotten pull request.'
 branding:
   icon: alert-triangle
   color: blue
+inputs:
+  token:
+    description:
+      'Github token.'
+    required: true
+  team:
+    description:
+      'Team. For routing and group in grafana.'
+    required: true
+  authors:
+    description:
+      'Authors, separated by ",". Whose pool requesters need to be monitored.'
+    required: true
+  timeout:
+    description:
+      'Timeout in hours, after which, pull request is forgotten.'
+    required: true
+  retries:
+    description:
+      'Count of retries in case of fail request to grafana.'
+    required: true
 runs:
   using: 'docker'
   image: 'Dockerfile'
+  args:
+    - '-k'
+    - ${{ inputs.token }}
+    - '-t'
+    - ${{ inputs.team }}
+    - '-a'
+    - ${{ inputs.author }}
+    - 'd'
+    - ${{ inputs.timeout }}
+    - 'r'
+    - ${{ inputs.retries }}
