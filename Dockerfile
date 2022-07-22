@@ -23,4 +23,4 @@ LABEL com.github.actions.color="blue"
 # Relayer the .NET SDK, anew with the build output
 FROM mcr.microsoft.com/dotnet/sdk:6.0
 COPY --from=build-env /out .
-ENTRYPOINT [ "dotnet", "/NotifyBumpPackages.exe" ]
+ENTRYPOINT [ "dotnet", "/NotifyBumpPackages.dll" ]
