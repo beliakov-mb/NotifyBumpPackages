@@ -25,7 +25,7 @@ public class TestHttpMessageHandler : HttpMessageHandler
 
 public class TestUser : User
 {
-    public TestUser(string login) : base()
+    public TestUser(string login)
     {
         Login = login;
     }
@@ -44,24 +44,29 @@ public class TestPullRequest : PullRequest
 [TestClass]
 public class BumpPackagesNotifierTests
 {
-    [TestMethod]
-    public async Task ScanAndNotifyAsync_Normal()
-    {
-        var testAuthor = "testAuthor";
+    private const string TestAuthor = "testAuthor";
+    private readonly Mock<IGitHubClient> _githubClientMock;
 
-        var _githubClientMock = new Mock<IGitHubClient>();
+    public BumpPackagesNotifierTests()
+    {
+        _githubClientMock = new Mock<IGitHubClient>();
         _githubClientMock.Setup(c =>
                 c.PullRequest.GetAllForRepository(
                     It.IsAny<string>(),
                     It.IsAny<string>()))
             .ReturnsAsync(new ReadOnlyCollection<PullRequest>(new List<PullRequest>()
             {
-                new TestPullRequest(testAuthor, DateTimeOffset.UtcNow - TimeSpan.FromHours(24) ,"t1"),
-                new TestPullRequest(testAuthor, DateTimeOffset.UtcNow, "t2"),
-                new TestPullRequest(testAuthor+"1", DateTimeOffset.UtcNow - TimeSpan.FromHours(24), "t3")
+                new TestPullRequest(TestAuthor, DateTimeOffset.UtcNow - TimeSpan.FromHours(24) ,"t1"),
+                new TestPullRequest(TestAuthor, DateTimeOffset.UtcNow, "t2"),
+                new TestPullRequest(TestAuthor+"1", DateTimeOffset.UtcNow - TimeSpan.FromHours(24), "t3")
             }));
+    }
 
+    [TestMethod]
+    public async Task ScanAndNotifyAsync_Normal()
+    {
         MessageToGrafanaDto? _request = null!;
+
         var _httpMessageHandler = new TestHttpMessageHandler(req =>
         {
             _request = req.Content?.ReadFromJsonAsync<MessageToGrafanaDto>().Result;
@@ -70,8 +75,8 @@ public class BumpPackagesNotifierTests
 
         var _httpClient = new HttpClient(_httpMessageHandler);
 
-        var _repositories = new string[] { "testOwner/testRepo" };
-        var _authors = new string[] { testAuthor };
+        var _repositories = new [] { "testOwner/testRepo" };
+        var _authors = new [] { TestAuthor };
 
         var _notifier = new BumpPackagesNotifier(
             _githubClientMock.Object,
@@ -86,7 +91,7 @@ public class BumpPackagesNotifierTests
         await _notifier.ScanAndNotifyAsync();
 
         Assert.AreEqual("testTeam", _request.Team);
-        Assert.AreEqual(testAuthor, _request.PullRequests[0].Author);
+        Assert.AreEqual(TestAuthor, _request.PullRequests[0].Author);
         Assert.AreEqual(1, _request.PullRequests.Count);
         Assert.AreEqual("t1", _request.PullRequests[0].Title);
     }
@@ -94,18 +99,6 @@ public class BumpPackagesNotifierTests
     [TestMethod]
     public async Task ScanAndNotifyAsync_Retries()
     {
-        var testAuthor = "testAuthor";
-
-        var _githubClientMock = new Mock<IGitHubClient>();
-        _githubClientMock.Setup(c =>
-                c.PullRequest.GetAllForRepository(
-                    It.IsAny<string>(),
-                    It.IsAny<string>()))
-            .ReturnsAsync(new ReadOnlyCollection<PullRequest>(new List<PullRequest>()
-            {
-                new TestPullRequest(testAuthor, DateTimeOffset.UtcNow - TimeSpan.FromHours(24) ,"t1"),
-            }));
-
         int _counter = 0;
         var _httpMessageHandler = new TestHttpMessageHandler(req =>
         {
@@ -118,8 +111,8 @@ public class BumpPackagesNotifierTests
 
         var _httpClient = new HttpClient(_httpMessageHandler);
 
-        var _repositories = new string[] { "testOwner/testRepo" };
-        var _authors = new string[] { testAuthor };
+        var _repositories = new [] { "testOwner/testRepo" };
+        var _authors = new [] { TestAuthor };
 
         var _notifier = new BumpPackagesNotifier(
             _githubClientMock.Object,
@@ -138,18 +131,6 @@ public class BumpPackagesNotifierTests
     [TestMethod]
     public async Task ScanAndNotifyAsync_Retries_Exceeded()
     {
-        var _testAuthor = "testAuthor";
-
-        var _githubClientMock = new Mock<IGitHubClient>();
-        _githubClientMock.Setup(c =>
-                c.PullRequest.GetAllForRepository(
-                    It.IsAny<string>(),
-                    It.IsAny<string>()))
-            .ReturnsAsync(new ReadOnlyCollection<PullRequest>(new List<PullRequest>()
-            {
-                new TestPullRequest(_testAuthor, DateTimeOffset.UtcNow - TimeSpan.FromHours(24) ,"t1"),
-            }));
-
         int _counter = 0;
         var _httpMessageHandler = new TestHttpMessageHandler(req =>
         {
@@ -159,8 +140,8 @@ public class BumpPackagesNotifierTests
 
         var _httpClient = new HttpClient(_httpMessageHandler);
 
-        var _repositories = new string[] { "testOwner/testRepo" };
-        var _authors = new string[] { _testAuthor };
+        var _repositories = new [] { "testOwner/testRepo" };
+        var _authors = new [] { TestAuthor };
 
         var _notifier = new BumpPackagesNotifier(
             _githubClientMock.Object,
