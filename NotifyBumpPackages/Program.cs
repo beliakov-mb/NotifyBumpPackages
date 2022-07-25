@@ -22,7 +22,7 @@ var _messageToGrafana = new MessageToGrafanaDto()
 };
 
 var _repositories = _options.Repositories.Split(",");
-var _authors = _options.Authors.Split(",");
+var _authors = _options.Authors.Split(",").Select(a => a.Trim());
 
 foreach (var _repository in _repositories)
 {
