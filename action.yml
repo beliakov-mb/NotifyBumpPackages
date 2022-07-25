@@ -24,6 +24,10 @@ inputs:
     description:
       'Count of retries in case of fail request to grafana.'
     required: true
+  repositories:
+    description:
+      'List of repositories for scan.'
+    required: true
 runs:
   using: 'docker'
   image: 'Dockerfile'
@@ -38,3 +42,5 @@ runs:
     - ${{ inputs.timeout }}
     - '-r'
     - ${{ inputs.retries }}
+    - '-s'
+    - ${{ inputs.repositories }}
