@@ -1,10 +1,6 @@
-﻿using System.Net;
-using CommandLine;
+﻿using CommandLine;
 using NotifyBumpPackages;
 using Octokit;
-using System.Text;
-using System.Text.Json;
-using Polly;
 
 const string grafanaUri =
     @"https://a-prod-us-central-0.grafana.net/integrations/v1/formatted_webhook/4kI3HQb0Tg0G7pt25YXURTvBP/";
