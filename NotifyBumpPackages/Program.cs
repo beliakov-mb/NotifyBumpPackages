@@ -14,16 +14,39 @@ var _githubClient = new GitHubClient(new ProductHeaderValue("notify-bump-package
 {
     Credentials = new Credentials(_options.Token)
 };
-var _repositoryEnvironmentVariable = Environment.GetEnvironmentVariable("GITHUB_REPOSITORY") ??
-                                     throw new NullReferenceException("GITHUB_REPOSITORY environment variable");
 
-var _repositoryOwner = _repositoryEnvironmentVariable.Split('/')[0];
-var _repositoryName = _repositoryEnvironmentVariable.Split('/')[1];
-var _pullRequests = await _githubClient.PullRequest.GetAllForRepository(_repositoryOwner, _repositoryName);
-var _authorList = _options.Authors.Split("/");
-var _filteredPullRequests = _pullRequests
-    .Where(pr => _authorList.Any(a => a == pr.User.Login))
-    .Where(pr => (DateTime.UtcNow - pr.CreatedAt.UtcDateTime).TotalHours > _options.Timeout);
+var _messageToGrafana = new MessageToGrafanaDto()
+{
+    Team = _options.Team,
+    PullRequests = new List<ForgottenPullRequestDto>()
+};
+
+foreach (var _repository in _options.Repositories)
+{
+    var _repositoryOwner = _repository.Split('/')[0];
+    var _repositoryName = _repository.Split('/')[1];
+
+    var _pullRequests =
+        await _githubClient.PullRequest.GetAllForRepository(_repositoryOwner, _repositoryName);
+
+    var _filteredPullRequests = _pullRequests
+        .Where(pr => _options.Authors.Any(a => a == pr.User.Login))
+        .Where(pr => (DateTime.UtcNow - pr.CreatedAt.UtcDateTime).TotalHours > _options.Timeout);
+
+    foreach (var _pr in _filteredPullRequests)
+    {
+        var _forgottenPullRequest = new ForgottenPullRequestDto()
+        {
+            Author = _pr.User.Login,
+            Title = _pr.Title,
+            Url = _pr.HtmlUrl,
+            RepositoryName = _repositoryName,
+            Timeout = (int)(DateTime.UtcNow - _pr.CreatedAt.UtcDateTime).TotalHours
+        };
+
+        _messageToGrafana.PullRequests.Add(_forgottenPullRequest);
+    }
+}
 
 var _httpClient = new HttpClient();
 var _retryPolicy = Policy
@@ -32,23 +55,8 @@ var _retryPolicy = Policy
     .WaitAndRetryAsync(_options.Retries, retryAttempt =>
         TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 
-foreach (var pr in _filteredPullRequests)
-{
-    var _forgottenPullRequest = new ForgottenPullRequestDto()
-    {
-        Author = pr.User.Login,
-        Title = pr.Title,
-        Url = pr.HtmlUrl,
-        RepositoryName = _repositoryName,
-        Timeout = (int)(DateTime.UtcNow - pr.CreatedAt.UtcDateTime).TotalHours,
-        Team = _options.Team
-    };
-
-    Console.Write("Notify about " + pr.HtmlUrl);
-    _ = await _retryPolicy.ExecuteAsync(async() =>
-        await _httpClient.PostAsync(
-            grafanaUri,
-            new StringContent(JsonSerializer.Serialize(_forgottenPullRequest), Encoding.Default,
-                "application/json"))
-        );
-}
+_ = await _retryPolicy.ExecuteAsync(async () =>
+    await _httpClient.PostAsync(
+        grafanaUri,
+        new StringContent(JsonSerializer.Serialize(_messageToGrafana), Encoding.Default,
+            "application/json")));

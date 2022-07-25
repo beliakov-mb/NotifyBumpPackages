@@ -18,7 +18,4 @@ public record ForgottenPullRequestDto
 
     [JsonPropertyName("author")]
     public string Author { get; set; } = null!;
-
-    [JsonPropertyName("team")]
-    public string Team { get; set; } = null!;
 }
