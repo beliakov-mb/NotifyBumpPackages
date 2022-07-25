@@ -21,13 +21,13 @@ var _messageToGrafana = new MessageToGrafanaDto()
     PullRequests = new List<ForgottenPullRequestDto>()
 };
 
-var _repositories = _options.Repositories.Trim().Split(",");
-var _authors = _options.Authors.Trim().Split(",");
+var _repositories = _options.Repositories.Split(",");
+var _authors = _options.Authors.Split(",");
 
 foreach (var _repository in _repositories)
 {
-    var _repositoryOwner = _repository.Split('/')[0];
-    var _repositoryName = _repository.Split('/')[1];
+    var _repositoryOwner = _repository.Split('/')[0].Trim();
+    var _repositoryName = _repository.Split('/')[1].Trim();
 
     var _pullRequests =
         await _githubClient.PullRequest.GetAllForRepository(_repositoryOwner, _repositoryName);
