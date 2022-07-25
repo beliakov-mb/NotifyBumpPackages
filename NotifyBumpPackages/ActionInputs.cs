@@ -17,7 +17,7 @@ public class ActionInputs
     [Option('a', "authors",
         Required = true,
         HelpText = "Pull request authors")]
-    public IEnumerable<string> Authors { get; set; } = null!;
+    public string Authors { get; set; } = null!;
 
     [Option('d', "timeout",
         Required = true,
@@ -32,5 +32,5 @@ public class ActionInputs
     [Option('s', "repositories",
         Required = true,
         HelpText = "Repositories to scan")]
-    public IEnumerable<string> Repositories { get; set; } = null!;
+    public string Repositories { get; set; } = null!;
 }

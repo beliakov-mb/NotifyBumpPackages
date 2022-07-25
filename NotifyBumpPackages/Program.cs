@@ -21,7 +21,10 @@ var _messageToGrafana = new MessageToGrafanaDto()
     PullRequests = new List<ForgottenPullRequestDto>()
 };
 
-foreach (var _repository in _options.Repositories)
+var _repositories = _options.Repositories.Split(",");
+var _authors = _options.Authors.Split(",");
+
+foreach (var _repository in _repositories)
 {
     var _repositoryOwner = _repository.Split('/')[0];
     var _repositoryName = _repository.Split('/')[1];
@@ -30,7 +33,7 @@ foreach (var _repository in _options.Repositories)
         await _githubClient.PullRequest.GetAllForRepository(_repositoryOwner, _repositoryName);
 
     var _filteredPullRequests = _pullRequests
-        .Where(pr => _options.Authors.Any(a => a == pr.User.Login))
+        .Where(pr => _authors.Any(a => a == pr.User.Login))
         .Where(pr => (DateTime.UtcNow - pr.CreatedAt.UtcDateTime).TotalHours > _options.Timeout);
 
     foreach (var _pr in _filteredPullRequests)
