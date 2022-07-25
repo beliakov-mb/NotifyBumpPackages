@@ -21,8 +21,8 @@ var _messageToGrafana = new MessageToGrafanaDto()
     PullRequests = new List<ForgottenPullRequestDto>()
 };
 
-var _repositories = _options.Repositories.Split(",");
-var _authors = _options.Authors.Split(",");
+var _repositories = _options.Repositories.Trim().Split(",");
+var _authors = _options.Authors.Trim().Split(",");
 
 foreach (var _repository in _repositories)
 {
