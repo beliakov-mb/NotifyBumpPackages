@@ -1,9 +1,7 @@
-using System.Collections;
 using System.Net;
 using System.Text;
 using System.Text.Json;
 using Octokit;
-using System.Net.Http;
 using Polly;
 
 namespace NotifyBumpPackages;
@@ -17,7 +15,7 @@ public class BumpPackagesNotifier
     private readonly string _team;
     private readonly int _retries;
     private readonly string _grafanaUri;
-    private HttpClient _httpClient;
+    private readonly HttpClient _httpClient;
 
     public BumpPackagesNotifier(
         IGitHubClient githubClient,
